@@ -1,0 +1,156 @@
+﻿@using Artemis.Models
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Employees</h2>
+
+<div id="InsertBody">
+    <h4>Insert New Employee</h4>
+    <label>Name :</label><input type="text" required="true" id="EmpName" />
+    <label>Gender :</label><input type="text" required="true" id="EmpGender" />
+    <label>Salary :</label><input type="number" typeof="int" id="EmpSalary" />
+    <input type="button" onclick="SaveEmp()" value="Save Employee" />
+</div>
+<div id="ListBody">
+        <label onclick="NewEmp()">New Employee</label>
+    <table id="tableEmp" class="table">
+        <tr>
+            <th>Names</th>
+            <th>Gender</th>
+            <th>Salary</th>
+            <th></th>
+        </tr>
+    </table>
+</div>
+<div id="UpdateBody" class="modal-content">
+    <h4>Update Employee</h4>
+    <label>Name :</label><input type="text" required="true" id="EmpNameUpdate" />
+    <label>Gender :</label><input type="text" required="true" id="EmpGenderUpdate" />
+    <label>Salary :</label><input type="text" typeof="int" id="EmpSalaryUpdate" />
+    <input type="button" onclick="UpdateEmp()" value="Update Employee" />
+</div>
+<script src="~/Scripts/jquery-3.3.1.js"></script>
+<script>
+    var updateID = 0;
+    var monday;
+    $.noConflict();
+    jQuery(document).ready(function ($) {
+        document.getElementById("ListBody").style.display = "block";
+        document.getElementById("UpdateBody").style.display = "none";
+        document.getElementById("InsertBody").style.display = "none";
+        populateTable();
+    })
+    function NewEmp() {
+        document.getElementById("ListBody").style.display = "none";
+        document.getElementById("UpdateBody").style.display = "none";
+        document.getElementById("InsertBody").style.display = "block";
+    }
+    function Emp(id) {
+        updateID = id;
+        var tuesday;
+        for (var i =0 ; i <monday.length; i++) {
+            if (monday[i].ID==id) {
+                tuesday=monday[i];
+            }
+        }        
+        document.getElementById("EmpNameUpdate").placeholder=tuesday.Name;
+        document.getElementById("EmpGenderUpdate").placeholder=tuesday.Gender;
+        document.getElementById("EmpSalaryUpdate").placeholder=tuesday.Salary;
+        document.getElementById("ListBody").style.display = "none";
+        document.getElementById("UpdateBody").style.display = "block";
+        document.getElementById("InsertBody").style.display = "none";
+    }
+    function SaveEmp() {
+      var Name=document.getElementById("EmpName").value;
+      var Gender= document.getElementById("EmpGender").value;
+       var Salary= document.getElementById("EmpSalary").value;
+        $.getJSON("/Serenity/InsertEmployee?Name=" + Name + '&Gender=' + Gender + '&Salary=' + Salary,
+    function (result) {
+        debugger;
+        if (result != "\"Error\"" && result != "[]") {
+            console.log("Success");
+                alert("Added successfully");
+            debugger;
+            document.getElementById("EmpName").value = "";
+            document.getElementById("EmpGender").value = "";
+            document.getElementById("EmpSalary").value = "";
+            document.getElementById("ListBody").style.display = "block";
+            document.getElementById("UpdateBody").style.display = "none";
+            document.getElementById("InsertBody").style.display = "none";
+            populateTable();
+        }
+        else { }
+    });
+    }
+    function UpdateEmp() {
+        var Name = document.getElementById("EmpNameUpdate").value;
+        var Gender = document.getElementById("EmpGenderUpdate").value;
+        var Salary = document.getElementById("EmpSalaryUpdate").value;
+        debugger;
+        if (Name == "") {
+            Name = "Lutho";
+        }
+        if (Gender == "") {
+            Gender = "Lutho";
+        }
+        if (Salary == "") {
+            Salary = 7;
+        }
+        $.getJSON("/Serenity/UpdateEmployee?id="+updateID+"&Name=" + Name + '&Gender=' + Gender + '&Salary=' + Salary,
+    function (result) {
+        debugger;
+        if (result != "\"Error\"" && result != "[]") {
+            console.log("Success");
+                alert("Added successfully");
+            debugger;
+            document.getElementById("EmpNameUpdate").value = "";
+            document.getElementById("EmpGenderUpdate").value = "";
+            document.getElementById("EmpSalaryUpdate").value = "";
+            document.getElementById("ListBody").style.display = "block";
+            document.getElementById("UpdateBody").style.display = "none";
+            document.getElementById("InsertBody").style.display = "none";
+            populateTable();
+        }
+        else { }
+    });
+    }
+    function DelEmp(id) {
+        var r = confirm("Are you sure you want to Delete the Employee?");
+        if (r == true) {
+            txt = "You pressed OK!";
+        $.getJSON("/Serenity/DeleteEmployee?id=" + id,function (result) {
+        debugger;
+        if (result != "\"Error\"" && result != "[]") {
+            console.log("Deleted Successfully");
+            document.getElementById("ListBody").style.display = "block";
+            document.getElementById("UpdateBody").style.display = "none";
+            document.getElementById("InsertBody").style.display = "none";
+            populateTable();
+        }
+        else { }
+    });
+        } else {
+        }
+    }
+    function populateTable() {
+        var meme = $("#tableEmp");
+        if (meme[0].rows.length > 0) {
+            for (var i = (meme[0].rows.length-1) ; i >-1; i--) {
+                meme[0].rows[i].remove();
+            }
+        }
+        $.getJSON("/Serenity/AllEmployees",
+    function (result) {
+        monday=result;
+        if (result != "\"Error\"" && result != "[]") {
+            for (var j = 0; j < result.length; j++) {
+                meme.append("<tr><td>" + result[j].Name + "</td><td>" + result[j].Gender + "</td><td>R" + result[j].Salary + "</td><td><input type='button' onclick='Emp(" + result[j].ID + ")' value='Update Employee Details' style='background-color:lightblue'/><input type='button'  onclick='DelEmp(" + result[j].ID + ")' value='Delete Employee'style='background-color:red'/></td></tr>");
+            }
+        }
+        else { }
+    });
+    }
+
+
+</script>
